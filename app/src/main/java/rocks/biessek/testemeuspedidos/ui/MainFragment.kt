@@ -1,12 +1,12 @@
-package rocks.biessek.testemeuspedidos.ui.
+package rocks.biessek.testemeuspedidos.ui
 
-import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import rocks.biessek.testemeuspedidos.ui.R
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
+import rocks.biessek.testemeuspedidos.R
 
 class MainFragment : Fragment() {
 

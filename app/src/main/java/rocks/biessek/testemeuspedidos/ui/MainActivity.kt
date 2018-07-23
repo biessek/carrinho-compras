@@ -1,10 +1,8 @@
 package rocks.biessek.testemeuspedidos.ui
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import rocks.biessek.testemeuspedidos.ui
-
-..MainFragment
+import androidx.appcompat.app.AppCompatActivity
+import rocks.biessek.testemeuspedidos.R
 
 class MainActivity : AppCompatActivity() {
 
