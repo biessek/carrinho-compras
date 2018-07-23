@@ -83,6 +83,19 @@ class ProductCategoriesRepositoryTest {
     }
 
     @Test
+    fun checkCanListFromLocalAfterCache() {
+        server.enqueue(MockResponse().setBody(testJsonCategory))
+
+        var list = categoriesRepository.loadCategories()
+        assertEquals(1, list.size)
+
+        server.enqueue(MockResponse().setResponseCode(404))
+
+        list = categoriesRepository.loadCategories()
+        assertEquals(1, list.size)
+    }
+
+    @Test
     fun checkCanListFromRemote() {
         server.enqueue(MockResponse().setBody(testJsonCategory))
         database.clearAllTables()

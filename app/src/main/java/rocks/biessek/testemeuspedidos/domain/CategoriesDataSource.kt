@@ -1,6 +1,6 @@
-package rocks.biessek.testemeuspedidos.data
+package rocks.biessek.testemeuspedidos.domain
 
-import rocks.biessek.testemeuspedidos.data.model.ProductCategory
+import rocks.biessek.testemeuspedidos.domain.model.ProductCategory
 
 interface CategoriesDataSource {
     fun saveCategory(category: ProductCategory): Boolean

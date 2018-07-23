@@ -1,7 +1,7 @@
 package rocks.biessek.testemeuspedidos.data.remote
 
-import rocks.biessek.testemeuspedidos.data.CategoriesDataSource
-import rocks.biessek.testemeuspedidos.data.model.ProductCategory
+import rocks.biessek.testemeuspedidos.domain.CategoriesDataSource
+import rocks.biessek.testemeuspedidos.domain.model.ProductCategory
 import java.io.IOException
 
 class ProductCategoriesRemoteDataSource(private val serviceApi: ServiceApi) : CategoriesDataSource {

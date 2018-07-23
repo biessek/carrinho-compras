@@ -88,6 +88,19 @@ class ProductsRepositoryTest {
     }
 
     @Test
+    fun checkCanListFromLocalAfterCache() {
+        server.enqueue(MockResponse().setBody(testJsonProduct))
+
+        var list = productsRepository.loadProducts()
+        assertEquals(1, list.size)
+
+        server.enqueue(MockResponse().setResponseCode(404))
+
+        list = productsRepository.loadProducts()
+        assertEquals(1, list.size)
+    }
+
+    @Test
     fun checkCanListFromCategoryFromLocal() {
         server.enqueue(MockResponse().setResponseCode(404))
         productsDao.saveProduct(testProduct)

@@ -1,6 +1,7 @@
 package rocks.biessek.testemeuspedidos.data
 
-import rocks.biessek.testemeuspedidos.data.model.ProductCategory
+import rocks.biessek.testemeuspedidos.domain.CategoriesDataSource
+import rocks.biessek.testemeuspedidos.domain.model.ProductCategory
 
 class ProductCategoriesRepository(private val localCategoriesDataSource: CategoriesDataSource,
                                   private val remoteCategoriesDataSource: CategoriesDataSource) : CategoriesDataSource {
@@ -12,7 +13,9 @@ class ProductCategoriesRepository(private val localCategoriesDataSource: Categor
         if (localResult.isNotEmpty()) {
             return localResult
         }
-        return remoteCategoriesDataSource.loadCategories()
+        val remoteResult = remoteCategoriesDataSource.loadCategories()
+        remoteResult.forEach { saveCategory(it) }
+        return remoteResult
 
     }
 }
