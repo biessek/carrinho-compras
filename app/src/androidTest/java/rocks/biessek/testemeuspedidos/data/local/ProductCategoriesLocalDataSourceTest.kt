@@ -39,12 +39,21 @@ class ProductCategoriesLocalDataSourceTest {
     }
 
     @Test
-    fun checkCanListProductCategories() {
-        categoriesDao.saveProductCatefory(testCategory)
+    fun checkCanSaveProductCategory() {
+        categoriesDao.deleteProductCategories(testCategory)
 
-        val allCategories = categoriesLocalDataSource.loadCategories()
-        assertTrue(allCategories.isNotEmpty())
+        val result = categoriesLocalDataSource.saveCategory(testCategory)
+
+        assertTrue(result)
     }
 
+    @Test
+    fun checkCanListProductCategories() {
+        categoriesDao.saveProductCategory(testCategory)
+
+        val allCategories = categoriesLocalDataSource.loadCategories()
+
+        assertTrue(allCategories.isNotEmpty())
+    }
 
 }
