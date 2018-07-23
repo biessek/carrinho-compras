@@ -5,15 +5,18 @@ import rocks.biessek.testemeuspedidos.data.model.ProductCategory
 
 class ProductsRepository(private val localProductsDataSource: ProductsDataSource,
                          private val remoteProductsDataSource: ProductsDataSource) : ProductsDataSource {
-    override fun saveProduct(product: Product): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun saveProduct(product: Product): Boolean =
+            localProductsDataSource.saveProduct(product)
 
     override fun loadProducts(): List<Product> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val localResult = localProductsDataSource.loadProducts()
+
+        if (localResult.isNotEmpty()) {
+            return localResult
+        }
+        return remoteProductsDataSource.loadProducts()
     }
 
-    override fun loadProductsFromCategory(category: ProductCategory): List<Product> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun loadProductsFromCategory(category: ProductCategory): List<Product> =
+            localProductsDataSource.loadProductsFromCategory(category)
 }

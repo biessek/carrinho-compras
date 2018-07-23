@@ -4,11 +4,15 @@ import rocks.biessek.testemeuspedidos.data.model.ProductCategory
 
 class ProductCategoriesRepository(private val localCategoriesDataSource: CategoriesDataSource,
                                   private val remoteCategoriesDataSource: CategoriesDataSource) : CategoriesDataSource {
-    override fun saveCategory(category: ProductCategory): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun saveCategory(category: ProductCategory): Boolean = localCategoriesDataSource.saveCategory(category)
 
     override fun loadCategories(): List<ProductCategory> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val localResult = localCategoriesDataSource.loadCategories()
+
+        if (localResult.isNotEmpty()) {
+            return localResult
+        }
+        return remoteCategoriesDataSource.loadCategories()
+
     }
 }
