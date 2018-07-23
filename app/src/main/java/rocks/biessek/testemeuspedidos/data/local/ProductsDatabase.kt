@@ -18,4 +18,6 @@ abstract class ProductsDatabase: RoomDatabase() {
     }
 
     abstract fun productsDao(): ProductsDao
+
+    abstract fun categoriesDao(): ProductCategoriesDao
 }
