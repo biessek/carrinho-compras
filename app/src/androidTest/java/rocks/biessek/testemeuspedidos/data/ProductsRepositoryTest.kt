@@ -51,7 +51,6 @@ class ProductsRepositoryTest {
 
     @Before
     fun createRepo() {
-        println("creating")
         val context = InstrumentationRegistry.getTargetContext()
         database = Room.inMemoryDatabaseBuilder(context, ProductsDatabase::class.java).build()
         productsDao = database.productsDao()
@@ -61,13 +60,11 @@ class ProductsRepositoryTest {
                 .baseUrl(server.url(""))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
-        println("retro")
 
         productsRepository = ProductsRepository(
                 ProductsLocalDataSource(productsDao),
                 ProductsRemoteDataSource(retrofit.create(ServiceApi::class.java))
         )
-        println("server ${server.url("")}")
     }
 
     @Test
@@ -123,7 +120,6 @@ class ProductsRepositoryTest {
     @After
     @Throws(IOException::class)
     fun closeRepo() {
-        println("finalizing")
         server.shutdown()
         database.close()
     }
