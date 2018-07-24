@@ -4,13 +4,13 @@ import rocks.biessek.testemeuspedidos.domain.model.Product
 import rocks.biessek.testemeuspedidos.domain.model.ProductCategory
 
 interface ListProductsUseCase {
-    suspend fun listAllProducts(): List<Product>
+    fun listAllProducts(): List<Product>
 }
 
 interface FilterProductsUseCase {
-    suspend fun listProductsFromCategory(category: ProductCategory): List<Product>
+    fun listProductsFromCategory(category: ProductCategory): List<Product>
 }
 
 interface FavoriteProductUseCase {
-    suspend fun favoriteProduct(product: Product): Boolean
+    fun favoriteProduct(product: Product): Boolean
 }
