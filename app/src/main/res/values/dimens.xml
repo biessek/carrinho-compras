@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="actionBarSize">90dp</dimen>
+    <dimen name="actionBarPadding">16dp</dimen>
+</resources>
