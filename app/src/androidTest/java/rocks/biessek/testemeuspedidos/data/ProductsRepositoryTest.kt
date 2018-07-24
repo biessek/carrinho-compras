@@ -33,7 +33,6 @@ class ProductsRepositoryTest {
 
     private lateinit var productsRepository: ProductsRepository
 
-
     private val testProduct = Product(name = "Produto Teste", description = "Produto criado para o teste", photo = "foto.png", price = 33.99, categoryId = 1L)
     private val testCategory = ProductCategory(1L, "Categoria teste")
     private val testJsonProduct = """
@@ -47,7 +46,6 @@ class ProductsRepositoryTest {
         }
     ]
     """
-
 
     @Before
     fun createRepo() {

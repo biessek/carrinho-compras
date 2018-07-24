@@ -19,13 +19,13 @@
             android:theme="@style/toolbar">
 
             <FrameLayout
-                android:padding="@dimen/actionBarPadding"
                 android:id="@+id/drawer_menu"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:padding="@dimen/actionBarPadding">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -39,7 +39,16 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/products_list"
+            android:visibility="invisible"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/empty_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/no_products"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
     </FrameLayout>
 </androidx.drawerlayout.widget.DrawerLayout>
