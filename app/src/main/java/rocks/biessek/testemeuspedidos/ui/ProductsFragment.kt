@@ -1,6 +1,7 @@
 package rocks.biessek.testemeuspedidos.ui
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,36 +9,38 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.*
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.android.synthetic.main.categories_list.*
+import kotlinx.android.synthetic.main.categories_list.view.*
 import kotlinx.android.synthetic.main.fragment_products.*
-import kotlinx.android.synthetic.main.product_list_item.view.*
 import org.kodein.di.LateInitKodein
 import org.kodein.di.generic.instance
 import rocks.biessek.testemeuspedidos.App
 import rocks.biessek.testemeuspedidos.R
+import rocks.biessek.testemeuspedidos.domain.CategoriesInteractors
 import rocks.biessek.testemeuspedidos.domain.ProductsInteractors
+import rocks.biessek.testemeuspedidos.ui.adapter.CategoriesAdapter
+import rocks.biessek.testemeuspedidos.ui.adapter.CategorySelectedListener
+import rocks.biessek.testemeuspedidos.ui.adapter.ProductsAdapter
 import rocks.biessek.testemeuspedidos.ui.model.Product
+import rocks.biessek.testemeuspedidos.ui.model.ProductCategory
+import rocks.biessek.testemeuspedidos.ui.viewmodel.CategoriesViewModel
+import rocks.biessek.testemeuspedidos.ui.viewmodel.CategoriesViewModelFactory
 import rocks.biessek.testemeuspedidos.ui.viewmodel.ProductsViewModel
 import rocks.biessek.testemeuspedidos.ui.viewmodel.ProductsViewModelFactory
 
 
-class ProductsFragment : Fragment() {
+class ProductsFragment : Fragment(), CategorySelectedListener {
     val kodein = LateInitKodein()
     lateinit var productsAdapter: ProductsAdapter
+    lateinit var categoriesAdapter: CategoriesAdapter
+    private lateinit var productsViewModel: ProductsViewModel
+    private lateinit var categoryViewModel: CategoriesViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         kodein.baseKodein = (activity!!.applicationContext as App).kodein
-        val productsInteractors: ProductsInteractors by kodein.instance()
-
-        val model = ViewModelProviders.of(this, ProductsViewModelFactory(productsInteractors))
-                .get(ProductsViewModel::class.java)
-        model.productsList.observe(this, Observer { products ->
-            productsAdapter.submitList(products)
-            changeContentVisibility(products)
-        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -49,10 +52,79 @@ class ProductsFragment : Fragment() {
 
         configureToolbar()
         configureProductsList()
+
+        configureCategoriesDrawer()
+        configureCategoriesList()
+
+        configureProductsViewModel()
+        configureCategoriesViewModel()
+    }
+
+    private fun configureProductsViewModel() {
+        val productsInteractors: ProductsInteractors by kodein.instance()
+
+        productsViewModel = ViewModelProviders.of(this, ProductsViewModelFactory(productsInteractors))
+                .get(ProductsViewModel::class.java)
+        productsViewModel.productsList.observe(this, Observer { products ->
+            productsAdapter.submitList(products)
+            changeContentVisibility(products)
+        })
+
+        productsViewModel.productsList.observe(this, Observer { products ->
+            mapProductsListSelection(products)
+        })
+    }
+
+    /**
+     * Certifica-se que possui uma única categoria selecionada('0' caso contrário) e marca o id no adapter
+     * */
+    private fun mapProductsListSelection(products: List<Product>) {
+        val categoryId = products.firstOrNull()?.categoryId ?: 0
+        if (products.firstOrNull { product -> product.categoryId != categoryId } == null) {
+            categoriesAdapter.setSelected(categoryId)
+        } else {
+            categoriesAdapter.setSelected(0)
+        }
+    }
+
+    private fun configureCategoriesViewModel() {
+        val categoriesInteractors: CategoriesInteractors by kodein.instance()
+
+        categoryViewModel = ViewModelProviders.of(this, CategoriesViewModelFactory(categoriesInteractors))
+                .get(CategoriesViewModel::class.java)
+        categoryViewModel.categoriesList.observe(this, Observer { categories ->
+            categoriesAdapter.submitList(categories)
+            changeCategoriesContentVisibility(categories)
+        })
+    }
+
+    override fun onCategorySelected(category: ProductCategory) {
+        productsViewModel.filterFromCategoryId(category)
+        toggleCategoriesMenu()
+    }
+
+    private fun configureCategoriesDrawer() {
+        drawer_menu.setOnClickListener {
+            toggleCategoriesMenu()
+        }
+    }
+
+    private fun toggleCategoriesMenu() {
+        if (drawer_layout.isDrawerOpen(Gravity.END)) {
+            drawer_layout.closeDrawer(Gravity.END)
+        } else {
+            drawer_layout.openDrawer(Gravity.END)
+        }
+    }
+
+    private fun changeCategoriesContentVisibility(categories: List<ProductCategory>) {
+        categoriesAdapter.submitList(categories)
+        categories_layout.progressBar.visibility = View.GONE
+        categories_list.visibility = View.VISIBLE
     }
 
     private fun changeContentVisibility(products: List<Product>) {
-        progressBar.visibility = View.GONE
+        main_content.progressBar.visibility = View.GONE
         if (products.isEmpty()) {
             empty_text.visibility = View.VISIBLE
             products_list.visibility = View.INVISIBLE
@@ -70,60 +142,17 @@ class ProductsFragment : Fragment() {
         products_list.itemAnimator = DefaultItemAnimator()
     }
 
+    private fun configureCategoriesList() {
+        categoriesAdapter = CategoriesAdapter(context!!, this)
+        categories_list.adapter = categoriesAdapter
+        categories_list.setHasFixedSize(true)
+        categories_list.layoutManager = LinearLayoutManager(context)
+        categories_list.itemAnimator = DefaultItemAnimator()
+    }
+
     private fun configureToolbar() {
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowTitleEnabled(false)
-    }
-
-    class ProductsAdapter : ListAdapter<Product, ProductsViewHolder>(diffCallback) {
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductsViewHolder {
-            val inflater = LayoutInflater.from(parent.context)
-            return ProductsViewHolder(inflater.inflate(R.layout.product_list_item, parent, false))
-        }
-
-        override fun onBindViewHolder(holder: ProductsViewHolder, position: Int) {
-            holder.bind(getItem(position))
-        }
-
-        override fun submitList(list: List<Product>?) {
-            if (list != null) super.submitList(ArrayList(list))
-            else super.submitList(null)
-        }
-
-        override fun getItemId(position: Int): Long {
-            return getItem(position)?.id ?: 0L
-        }
-
-        companion object {
-            private val diffCallback = object : DiffUtil.ItemCallback<Product>() {
-                override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean =
-                        oldItem.id == newItem.id
-
-                override fun areContentsTheSame(oldItem: Product, newItem: Product): Boolean =
-                        oldItem == newItem
-            }
-        }
-    }
-
-    class ProductsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(product: Product) {
-            Glide.with(itemView.context)
-                    .setDefaultRequestOptions(RequestOptions().apply {
-                        centerInside()
-                    })
-                    .load(product.photo)
-
-                    .into(itemView.image)
-            itemView.title.text = product.name
-            itemView.price.text = "%.1f".format(product.price)
-            if (product.favorite) {
-                itemView.favorite_off.visibility = View.INVISIBLE
-                itemView.favorite_on.visibility = View.VISIBLE
-            } else {
-                itemView.favorite_off.visibility = View.VISIBLE
-                itemView.favorite_on.visibility = View.INVISIBLE
-            }
-        }
     }
 
 }

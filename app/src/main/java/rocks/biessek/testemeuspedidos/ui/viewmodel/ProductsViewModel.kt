@@ -4,10 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.launch
 import rocks.biessek.testemeuspedidos.AppIdlingResource
 import rocks.biessek.testemeuspedidos.domain.ProductsInteractors
 import rocks.biessek.testemeuspedidos.ui.model.Product
+import rocks.biessek.testemeuspedidos.ui.model.ProductCategory
 
 
 class ProductsViewModel(
@@ -23,10 +24,20 @@ class ProductsViewModel(
             return products
         }
 
-    private fun listProducts() {
+    fun filterFromCategoryId(category: ProductCategory) {
+        listProducts(category)
+    }
+
+    private fun listProducts(category: ProductCategory? = null) {
         AppIdlingResource.increment()
-        async {
-            val loaded = productsInteractors.listAllProducts().map {
+        launch {
+            var loaded = if (category == null) {
+                productsInteractors.listAllProducts()
+            } else {
+                productsInteractors.listProductsFromCategory(category)
+            }
+
+            loaded = loaded.map {
                 Product(it.id, it.name, it.description, it.photo, it.price, it.categoryId, it.favorite)
             }
             products.postValue(loaded)

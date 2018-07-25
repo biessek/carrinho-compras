@@ -2,8 +2,8 @@ package rocks.biessek.testemeuspedidos.data.remote
 
 import retrofit2.Call
 import retrofit2.http.GET
-import rocks.biessek.testemeuspedidos.ui.model.Product
-import rocks.biessek.testemeuspedidos.ui.model.ProductCategory
+import rocks.biessek.testemeuspedidos.data.model.Product
+import rocks.biessek.testemeuspedidos.data.model.ProductCategory
 
 interface ServiceApi {
     @GET("b95b75cfddc6b1cb601d7f806859e1dc/raw/dc973df65664f6997eeba30158d838c4b716204c/products.json")

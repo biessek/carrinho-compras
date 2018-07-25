@@ -21,6 +21,8 @@ class ProductsRepository(private val localProductsDataSource: ProductsDataSource
         return remoteResult
     }
 
-    override fun loadProductsFromCategory(category: ProductCategory): List<Product> =
-            localProductsDataSource.loadProductsFromCategory(category)
+    override fun loadProductsFromCategory(category: ProductCategory): List<Product> {
+        val result = localProductsDataSource.loadProductsFromCategory(category)
+        return result
+    }
 }

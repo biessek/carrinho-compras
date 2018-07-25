@@ -1,18 +1,29 @@
 package rocks.biessek.testemeuspedidos.ui
 
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
 import androidx.test.InstrumentationRegistry
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.DrawerMatchers.isOpen
+import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.test.runner.AndroidJUnit4
+import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import org.hamcrest.Matchers.`is`
-import org.hamcrest.Matchers.instanceOf
+import okhttp3.mockwebserver.RecordedRequest
+import org.hamcrest.Description
+import org.hamcrest.Matcher
+import org.hamcrest.Matchers.*
+import org.hamcrest.TypeSafeMatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -24,7 +35,9 @@ import rocks.biessek.testemeuspedidos.AppIdlingResource
 import rocks.biessek.testemeuspedidos.R
 import rocks.biessek.testemeuspedidos.TestApp
 import rocks.biessek.testemeuspedidos.data.local.ProductsDatabase
+import rocks.biessek.testemeuspedidos.ui.adapter.CategoryViewHolder
 import rocks.biessek.testemeuspedidos.ui.model.Product
+import rocks.biessek.testemeuspedidos.ui.model.ProductCategory
 import java.io.IOException
 
 
@@ -36,49 +49,82 @@ class ProductsFragmentTest {
 
     @get:Rule
     val activityRule: ActivityTestRule<MainActivity> = ActivityTestRule(
-            MainActivity::class.java)
+            MainActivity::class.java, false, false)
 
     @Before
     fun createRepo() {
         val context = InstrumentationRegistry.getTargetContext()
+        IdlingRegistry.getInstance().register(AppIdlingResource.countingIdlingResource)
         val kodein = (context.applicationContext as TestApp).kodein.direct
         database = kodein.instance()
         server = kodein.instance()
-
-        IdlingRegistry.getInstance().register(AppIdlingResource.countingIdlingResource)
+        database.clearAllTables()
     }
 
-    //    @Test
+    //@Test
     fun checkEmptyListProducts() {
-        withNoProducts()
-
+        withContent(noResponse(), noResponse())
+        activityRule.launchActivity(null)
+        onData(`is`(instanceOf(Product::class.java)))
         val emptyText = activityRule.activity.resources.getString(R.string.no_products)
         onView(withText(emptyText)).check(ViewAssertions.matches(isDisplayed()))
     }
 
-    @Test
+    //@Test
     fun checkListProducts() {
-        withSomeProducts()
+        withContent(someProducts(), noResponse())
+        activityRule.launchActivity(null)
 
         onData(`is`(instanceOf(Product::class.java)))
-        onView(withId(R.id.products_list)).check(ViewAssertions.matches(hasChildCount(2)))
+        onView(withId(R.id.products_list)).check(ViewAssertions.matches(hasChildCount(3)))
     }
 
     //@Test
     fun checkShowCategoriesMenu() {
+        withContent(someProducts(), someCategories())
+        activityRule.launchActivity(null)
 
+        onView(withId(R.id.drawer_menu)).perform(click())
+        onView(withId(R.id.drawer_layout)).check(matches(isOpen(Gravity.RIGHT)))
+
+        onData(`is`(instanceOf(ProductCategory::class.java)))
+        onView(withId(R.id.categories_list)).check(ViewAssertions.matches(hasChildCount(3)))
     }
 
-    //@Test
-    fun checkSearchCategoryByTiping() {
-
-    }
 
     //@Test
     fun checkFilterByCategory() {
+        withContent(someProducts(), someCategories())
+        activityRule.launchActivity(null)
+        onData(`is`(instanceOf(ProductCategory::class.java)))
 
+        onView(withId(R.id.drawer_menu)).perform(click())
+        onView(withId(R.id.categories_list))
+                .perform(RecyclerViewActions.actionOnItemAtPosition<CategoryViewHolder>(1, click()))
+
+        onData(`is`(instanceOf(Product::class.java)))
+        onView(withId(R.id.products_list)).check(ViewAssertions.matches(hasChildCount(2)))
+        assertCategorySelection()
     }
 
+    private fun assertCategorySelection() {
+        onView(withId(R.id.drawer_menu)).perform(click())
+        for (i in 0..2) {
+            if (i == 1) {
+                onView(allOf(
+                        withParent(nthChildOf(withId(R.id.categories_list), i)),
+                        withId(R.id.checkbox)
+                )).check(matches(isDisplayed()))
+            } else {
+                onView(allOf(
+                        withParent(nthChildOf(withId(R.id.categories_list), i)),
+                        withId(R.id.checkbox)
+                )).check(matches(not(isDisplayed())))
+            }
+        }
+
+    }
+    
     //@Test
     fun checkNavigateToDetails() {
 
@@ -86,18 +132,31 @@ class ProductsFragmentTest {
 
     @After
     @Throws(IOException::class)
-    fun closeRepo() {
+    fun tearDown() {
         IdlingRegistry.getInstance().unregister(AppIdlingResource.countingIdlingResource)
-        server.shutdown()
-        database.close()
     }
 
-    private fun withNoProducts() {
-        database.clearAllTables()
-        server.enqueue(MockResponse().setResponseCode(404))
+    private val PRODUCTS_PATH = "/b95b75cfddc6b1cb601d7f806859e1dc/raw/dc973df65664f6997eeba30158d838c4b716204c/products.json"
+    private val CATEGORIES_PATH = "/e84d0d969613fd0ef8f9fd08546f7155/raw/a0611f7e765fa2b745ad9a897296e082a3987f61/categories.json"
+
+    private fun noResponse(): MockResponse {
+        return MockResponse().setResponseCode(404)
     }
 
-    private fun withSomeProducts() {
+    private fun withContent(productsResponse: MockResponse, categoriesResponse: MockResponse) {
+        server.setDispatcher(object : Dispatcher() {
+            override fun dispatch(request: RecordedRequest?): MockResponse {
+                if (request?.path == PRODUCTS_PATH) {
+                    return productsResponse
+                } else if (request?.path == CATEGORIES_PATH) {
+                    return categoriesResponse
+                }
+                return noResponse()
+            }
+        })
+    }
+
+    private fun someProducts(): MockResponse {
         val testJsonProducts = """
     [
         {
@@ -113,12 +172,52 @@ class ProductsFragmentTest {
             "photo": "https://simplest-meuspedidos-arquivos.s3.amazonaws.com/media/imagem_produto/133421/fe41bc44-48f7-11e6-a3ac-0a9a90ee83e3.jpeg",
             "price": 1979.10,
             "category_id": 1
+        },
+        {
+            "name": "Galaxy A5 2016",
+            "description": "Alta performance Hardware de alta qualidade e performance para navegação na internet. O processador Octa-Core permite carregamento de páginas de navegadores instantaneamente, transições de interfaces de maneira suave e multitarefa. O Galaxy A permite também a expansão de memória.",
+            "photo": "https://simplest-meuspedidos-arquivos.s3.amazonaws.com/media/imagem_produto/133421/07b3b1d8-48f8-11e6-aa97-020adee616d7.jpeg",
+            "price": 1979.10,
+            "category_id": 2
         }
     ]
     """
-        database.clearAllTables()
-        server.enqueue(MockResponse().setBody(testJsonProducts))
+        return MockResponse().setBody(testJsonProducts)
     }
 
+    private fun someCategories(): MockResponse {
+        val testJsonCategories = """
+    [
+      {
+        "id": 1,
+        "name": "Televisores"
+      },
+      {
+        "id": 2,
+        "name": "Celulares"
+      }
+    ]
+    """
+        return MockResponse().setBody(testJsonCategories)
+    }
+
+
+    fun nthChildOf(parentMatcher: Matcher<View>, childPosition: Int): Matcher<View> {
+        return object : TypeSafeMatcher<View>() {
+            override fun describeTo(description: Description) {
+                description.appendText("position $childPosition of parent ")
+                parentMatcher.describeTo(description)
+            }
+
+            override fun matchesSafely(view: View): Boolean {
+                if (view.parent !is ViewGroup) return false
+                val parent = view.parent as ViewGroup
+
+                return (parentMatcher.matches(parent)
+                        && parent.childCount > childPosition
+                        && parent.getChildAt(childPosition) == view)
+            }
+        }
+    }
 
 }

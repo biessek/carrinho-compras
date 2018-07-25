@@ -3,6 +3,8 @@
     <color name="colorPrimary">#9000</color>
     <color name="colorPrimaryDark">#A000</color>
     <color name="colorAccent">@android:color/holo_blue_dark</color>
+    <color name="colorSelectedCategory">#039df3</color>
     <color name="colorBackground">#f5f5f5</color>
     <color name="colorStar">#ecbe2a</color>
+    <color name="colorSelectedCategoryBackground">@color/colorBackground</color>
 </resources>
