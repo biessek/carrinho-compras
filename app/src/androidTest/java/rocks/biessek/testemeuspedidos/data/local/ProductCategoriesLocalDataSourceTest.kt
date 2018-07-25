@@ -9,7 +9,6 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import rocks.biessek.testemeuspedidos.data.model.Product
 import rocks.biessek.testemeuspedidos.data.model.ProductCategory
 import java.io.IOException
 

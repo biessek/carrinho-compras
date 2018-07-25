@@ -14,7 +14,8 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "rocks.biessek.testemeuspedidos.TestRunner"
     }
     buildTypes {
         release {
@@ -35,6 +36,7 @@ dependencies {
     implementation 'android.arch.navigation:navigation-fragment:1.0.0-alpha04'
     implementation 'androidx.recyclerview:recyclerview:1.0.0-beta01'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
+    implementation 'androidx.cardview:cardview:1.0.0-beta01'
 
     // room
     implementation "androidx.room:room-runtime:$room_version"
@@ -50,11 +52,23 @@ dependencies {
     // mockito
     testImplementation "org.mockito:mockito-inline:$mockito_version"
 
+    // kodein
+    implementation "org.kodein.di:kodein-di-generic-jvm:$kodein_version"
+    implementation "org.kodein.di:kodein-di-framework-android-x:$kodein_version"
+
+    // coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+
+    // glide
+    implementation "com.github.bumptech.glide:glide:$glide_version"
+    kapt "com.github.bumptech.glide:compiler:$glide_version"
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.0-alpha4'
     androidTestImplementation 'androidx.test:rules:1.1.0-alpha4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha4'
     androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.1.0-alpha4'
+    implementation 'androidx.test.espresso:espresso-idling-resource:3.1.0-alpha4'
 }
 kotlin {
     experimental {

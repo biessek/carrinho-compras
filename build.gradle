@@ -6,6 +6,9 @@ buildscript {
     ext.retrofit_version = "2.4.0"
     ext.okhttp_version = "3.10.0"
     ext.mockito_version = "2.13.0"
+    ext.kodein_version = "5.2.0"
+    ext.coroutines_version = "0.22.5"
+    ext.glide_version = "4.7.1"
 
     repositories {
         google()
@@ -24,6 +27,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven { url "https://dl.bintray.com/kodein-framework/Kodein-DI" }
     }
 }
 

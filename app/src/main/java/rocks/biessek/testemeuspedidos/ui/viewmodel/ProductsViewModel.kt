@@ -1,11 +1,13 @@
-package rocks.biessek.testemeuspedidos.ui
+package rocks.biessek.testemeuspedidos.ui.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import kotlinx.coroutines.experimental.async
+import rocks.biessek.testemeuspedidos.AppIdlingResource
 import rocks.biessek.testemeuspedidos.domain.ProductsInteractors
-import rocks.biessek.testemeuspedidos.domain.model.Product
+import rocks.biessek.testemeuspedidos.ui.model.Product
 
 
 class ProductsViewModel(
@@ -22,7 +24,14 @@ class ProductsViewModel(
         }
 
     private fun listProducts() {
-        products.value = productsInteractors.listAllProducts()
+        AppIdlingResource.increment()
+        async {
+            val loaded = productsInteractors.listAllProducts().map {
+                Product(it.id, it.name, it.description, it.photo, it.price, it.categoryId, it.favorite)
+            }
+            products.postValue(loaded)
+            AppIdlingResource.decrement()
+        }
     }
 }
 

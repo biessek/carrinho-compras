@@ -1,30 +1,30 @@
 package rocks.biessek.testemeuspedidos.ui
 
-import androidx.room.Room
 import androidx.test.InstrumentationRegistry
+import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.test.runner.AndroidJUnit4
+import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.instanceOf
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import org.kodein.di.direct
+import org.kodein.di.generic.instance
+import rocks.biessek.testemeuspedidos.AppIdlingResource
 import rocks.biessek.testemeuspedidos.R
-import rocks.biessek.testemeuspedidos.data.ProductsRepository
-import rocks.biessek.testemeuspedidos.data.local.ProductsDao
+import rocks.biessek.testemeuspedidos.TestApp
 import rocks.biessek.testemeuspedidos.data.local.ProductsDatabase
-import rocks.biessek.testemeuspedidos.data.local.ProductsLocalDataSource
-import rocks.biessek.testemeuspedidos.data.model.Product
-import rocks.biessek.testemeuspedidos.data.remote.ProductsRemoteDataSource
-import rocks.biessek.testemeuspedidos.data.remote.ServiceApi
+import rocks.biessek.testemeuspedidos.ui.model.Product
 import java.io.IOException
 
 
@@ -32,12 +32,7 @@ import java.io.IOException
 @LargeTest
 class ProductsFragmentTest {
     private lateinit var database: ProductsDatabase
-    private lateinit var productsDao: ProductsDao
-    private lateinit var retrofit: Retrofit
     private lateinit var server: MockWebServer
-
-    private lateinit var productsRepository: ProductsRepository
-    private val testProduct = Product(name = "Produto Teste", description = "Produto criado para o teste", photo = "foto.png", price = 33.99, categoryId = 1L)
 
     @get:Rule
     val activityRule: ActivityTestRule<MainActivity> = ActivityTestRule(
@@ -46,22 +41,14 @@ class ProductsFragmentTest {
     @Before
     fun createRepo() {
         val context = InstrumentationRegistry.getTargetContext()
-        database = Room.inMemoryDatabaseBuilder(context, ProductsDatabase::class.java).build()
-        productsDao = database.productsDao()
+        val kodein = (context.applicationContext as TestApp).kodein.direct
+        database = kodein.instance()
+        server = kodein.instance()
 
-        server = MockWebServer()
-        retrofit = Retrofit.Builder()
-                .baseUrl(server.url(""))
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-
-        productsRepository = ProductsRepository(
-                ProductsLocalDataSource(productsDao),
-                ProductsRemoteDataSource(retrofit.create(ServiceApi::class.java))
-        )
+        IdlingRegistry.getInstance().register(AppIdlingResource.countingIdlingResource)
     }
 
-    @Test
+    //    @Test
     fun checkEmptyListProducts() {
         withNoProducts()
 
@@ -69,13 +56,12 @@ class ProductsFragmentTest {
         onView(withText(emptyText)).check(ViewAssertions.matches(isDisplayed()))
     }
 
-    private fun withNoProducts() {
-        database.clearAllTables()
-    }
-
     @Test
     fun checkListProducts() {
+        withSomeProducts()
 
+        onData(`is`(instanceOf(Product::class.java)))
+        onView(withId(R.id.products_list)).check(ViewAssertions.matches(hasChildCount(2)))
     }
 
     //@Test
@@ -101,8 +87,38 @@ class ProductsFragmentTest {
     @After
     @Throws(IOException::class)
     fun closeRepo() {
+        IdlingRegistry.getInstance().unregister(AppIdlingResource.countingIdlingResource)
         server.shutdown()
         database.close()
     }
+
+    private fun withNoProducts() {
+        database.clearAllTables()
+        server.enqueue(MockResponse().setResponseCode(404))
+    }
+
+    private fun withSomeProducts() {
+        val testJsonProducts = """
+    [
+        {
+            "name": "32\" Full HD Flat Smart TV H5103 Series 3",
+            "description": "Com o Modo futebol, é como se você estivesse realmente no jogo. Ele exibe, de forma precisa e viva, a grama verde do campo e todas as outras cores do estádio. Um poderoso efeito de som multi-surround também permite que você ouça toda a empolgação. Você pode até mesmo ampliar áreas selecionadas da tela para uma melhor visualização. Com apenas o toque de um botão, você pode aproveitar ao máximo o seu esporte favorito com todos os seus amigos.",
+            "photo": "https://simplest-meuspedidos-arquivos.s3.amazonaws.com/media/imagem_produto/133421/fda44b12-48f7-11e6-996c-0aad52ea90db.jpeg",
+            "price": 1466.10,
+            "category_id": 1
+        },
+        {
+            "name": "40\" Full HD Flat Smart TV H5103 Series 5",
+            "description": "Usando um algoritmo avançado de melhoria da qualidade de imagem, o Wide Color Enhancer Plus da Samsung melhora consideravelmente a qualidade de qualquer imagem e revela detalhes ocultos. Com o Wide Color Enhancer Plus, agora você verá as cores como elas realmente devem ser vistas.",
+            "photo": "https://simplest-meuspedidos-arquivos.s3.amazonaws.com/media/imagem_produto/133421/fe41bc44-48f7-11e6-a3ac-0a9a90ee83e3.jpeg",
+            "price": 1979.10,
+            "category_id": 1
+        }
+    ]
+    """
+        database.clearAllTables()
+        server.enqueue(MockResponse().setBody(testJsonProducts))
+    }
+
 
 }

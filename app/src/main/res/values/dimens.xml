@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="actionBarSize">90dp</dimen>
+    <dimen name="listPaddingTop">70dp</dimen>
     <dimen name="actionBarPadding">16dp</dimen>
+    <dimen name="itemSize">150dp</dimen>
+    <dimen name="priceSize">20sp</dimen>
+    <dimen name="cardview_content_padding_h">10dp</dimen>
+    <dimen name="cardview_content_padding_v">10dp</dimen>
+    <dimen name="image_width">140dp</dimen>
+    <dimen name="image_height">80dp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
 </resources>
