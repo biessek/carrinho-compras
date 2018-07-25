@@ -103,7 +103,7 @@ class ProductsRepositoryTest {
         server.enqueue(MockResponse().setResponseCode(404))
         productsDao.saveProduct(testProduct)
 
-        val list = productsRepository.loadProductsFromCategory(testCategory)
+        val list = productsRepository.loadProductsFromCategory(testCategory.id)
 
         assertEquals(1, list.size)
     }
@@ -113,7 +113,7 @@ class ProductsRepositoryTest {
         server.enqueue(MockResponse().setBody(testJsonProduct))
         database.clearAllTables()
 
-        val list = productsRepository.loadProductsFromCategory(testCategory)
+        val list = productsRepository.loadProductsFromCategory(testCategory.id)
 
         assert(list.isEmpty())
     }

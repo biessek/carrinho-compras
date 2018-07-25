@@ -22,6 +22,7 @@ import rocks.biessek.testemeuspedidos.domain.CategoriesInteractors
 import rocks.biessek.testemeuspedidos.domain.ProductsInteractors
 import rocks.biessek.testemeuspedidos.ui.adapter.CategoriesAdapter
 import rocks.biessek.testemeuspedidos.ui.adapter.CategorySelectedListener
+import rocks.biessek.testemeuspedidos.ui.adapter.ProductItemListener
 import rocks.biessek.testemeuspedidos.ui.adapter.ProductsAdapter
 import rocks.biessek.testemeuspedidos.ui.model.Product
 import rocks.biessek.testemeuspedidos.ui.model.ProductCategory
@@ -31,7 +32,7 @@ import rocks.biessek.testemeuspedidos.ui.viewmodel.ProductsViewModel
 import rocks.biessek.testemeuspedidos.ui.viewmodel.ProductsViewModelFactory
 
 
-class ProductsFragment : Fragment(), CategorySelectedListener {
+class ProductsFragment : Fragment(), CategorySelectedListener, ProductItemListener {
     val kodein = LateInitKodein()
     lateinit var productsAdapter: ProductsAdapter
     lateinit var categoriesAdapter: CategoriesAdapter
@@ -70,21 +71,9 @@ class ProductsFragment : Fragment(), CategorySelectedListener {
             changeContentVisibility(products)
         })
 
-        productsViewModel.productsList.observe(this, Observer { products ->
-            mapProductsListSelection(products)
+        productsViewModel.selectedCategoryId.observe(this, Observer { selectedCategoryId ->
+            categoriesAdapter.setSelected(selectedCategoryId)
         })
-    }
-
-    /**
-     * Certifica-se que possui uma única categoria selecionada('0' caso contrário) e marca o id no adapter
-     * */
-    private fun mapProductsListSelection(products: List<Product>) {
-        val categoryId = products.firstOrNull()?.categoryId ?: 0
-        if (products.firstOrNull { product -> product.categoryId != categoryId } == null) {
-            categoriesAdapter.setSelected(categoryId)
-        } else {
-            categoriesAdapter.setSelected(0)
-        }
     }
 
     private fun configureCategoriesViewModel() {
@@ -98,8 +87,12 @@ class ProductsFragment : Fragment(), CategorySelectedListener {
         })
     }
 
-    override fun onCategorySelected(category: ProductCategory) {
-        productsViewModel.filterFromCategoryId(category)
+    override fun onProductFavoriteClick(product: Product) {
+        productsViewModel.toggleProductFavoriteStatus(product)
+    }
+
+    override fun onCategorySelected(categoryId: Long) {
+        productsViewModel.filterFromCategoryId(categoryId)
         toggleCategoriesMenu()
     }
 
@@ -135,7 +128,7 @@ class ProductsFragment : Fragment(), CategorySelectedListener {
     }
 
     private fun configureProductsList() {
-        productsAdapter = ProductsAdapter()
+        productsAdapter = ProductsAdapter(this)
         products_list.adapter = productsAdapter
         products_list.setHasFixedSize(true)
         products_list.layoutManager = LinearLayoutManager(context)

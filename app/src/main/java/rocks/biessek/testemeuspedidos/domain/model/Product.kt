@@ -7,5 +7,5 @@ interface Product {
     val photo: String
     val price: Double
     val categoryId: Long
-    val favorite: Boolean
+    var favorite: Boolean
 }

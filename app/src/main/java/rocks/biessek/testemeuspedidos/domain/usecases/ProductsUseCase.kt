@@ -8,9 +8,9 @@ interface ListProductsUseCase {
 }
 
 interface FilterProductsUseCase {
-    suspend fun listProductsFromCategory(category: ProductCategory): List<Product>
+    suspend fun listProductsFromCategory(categoryId: Long): List<Product>
 }
 
 interface FavoriteProductUseCase {
-    suspend fun favoriteProduct(product: Product): Boolean
+    suspend fun toggleProductFavorite(product: Product): Boolean
 }

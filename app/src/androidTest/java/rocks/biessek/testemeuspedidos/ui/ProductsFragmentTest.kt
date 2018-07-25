@@ -12,6 +12,7 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerMatchers.isOpen
 import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.contrib.RecyclerViewActions.scrollToPosition
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
@@ -36,8 +37,10 @@ import rocks.biessek.testemeuspedidos.R
 import rocks.biessek.testemeuspedidos.TestApp
 import rocks.biessek.testemeuspedidos.data.local.ProductsDatabase
 import rocks.biessek.testemeuspedidos.ui.adapter.CategoryViewHolder
+import rocks.biessek.testemeuspedidos.ui.adapter.ProductsViewHolder
 import rocks.biessek.testemeuspedidos.ui.model.Product
 import rocks.biessek.testemeuspedidos.ui.model.ProductCategory
+import rocks.biessek.testemeuspedidos.ui.utils.RecyclerViewMatcher
 import java.io.IOException
 
 
@@ -124,12 +127,30 @@ class ProductsFragmentTest {
         }
 
     }
-    
-    //@Test
-    fun checkNavigateToDetails() {
 
+    //    @Test
+    fun checkCanFavoriteProduct() {
+        withContent(someProducts(), someCategories())
+        activityRule.launchActivity(null)
+
+        onView(withId(R.id.products_list)).perform(scrollToPosition<ProductsViewHolder>(2))
+
+        onView(withRecyclerView(R.id.products_list).atPosition(2))
+                .check(matches(hasDescendant(withText("Galaxy A5 2016"))))
+                .check(matches(hasDescendant(allOf(withId(R.id.favorite), isNotChecked()))))
+        onView(allOf(
+                withId(R.id.favorite),
+                withParent(hasDescendant(withText("Galaxy A5 2016")))
+        )).perform(click())
+
+        activityRule.finishActivity()
+        activityRule.launchActivity(null)
+
+        onView(withRecyclerView(R.id.products_list).atPosition(2))
+                .check(matches(hasDescendant(withText("Galaxy A5 2016"))))
+                .check(matches(hasDescendant(allOf(withId(R.id.favorite), isChecked()))))
     }
-
+    
     @After
     @Throws(IOException::class)
     fun tearDown() {
@@ -218,6 +239,10 @@ class ProductsFragmentTest {
                         && parent.getChildAt(childPosition) == view)
             }
         }
+    }
+
+    fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
+        return RecyclerViewMatcher(recyclerViewId)
     }
 
 }

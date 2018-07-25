@@ -1,21 +1,16 @@
 package rocks.biessek.testemeuspedidos.ui.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import kotlinx.coroutines.experimental.launch
 import rocks.biessek.testemeuspedidos.AppIdlingResource
 import rocks.biessek.testemeuspedidos.domain.ProductsInteractors
 import rocks.biessek.testemeuspedidos.ui.model.Product
-import rocks.biessek.testemeuspedidos.ui.model.ProductCategory
 
 
 class ProductsViewModel(
         private val productsInteractors: ProductsInteractors
 ) : ViewModel() {
     private var products = MutableLiveData<List<Product>>()
-
     val productsList: LiveData<List<Product>>
         get() {
             if (products.value == null) {
@@ -23,18 +18,25 @@ class ProductsViewModel(
             }
             return products
         }
+    val selectedCategoryId: LiveData<Long>
 
-    fun filterFromCategoryId(category: ProductCategory) {
-        listProducts(category)
+    init {
+        selectedCategoryId = Transformations.map(productsList) { products ->
+            return@map mapProductsListSelection(products)
+        }
     }
 
-    private fun listProducts(category: ProductCategory? = null) {
+    fun filterFromCategoryId(categoryId: Long) {
+        listProducts(categoryId)
+    }
+
+    private fun listProducts(categoryId: Long = 0L) {
         AppIdlingResource.increment()
         launch {
-            var loaded = if (category == null) {
+            var loaded = if (categoryId == 0L) {
                 productsInteractors.listAllProducts()
             } else {
-                productsInteractors.listProductsFromCategory(category)
+                productsInteractors.listProductsFromCategory(categoryId)
             }
 
             loaded = loaded.map {
@@ -44,6 +46,26 @@ class ProductsViewModel(
             AppIdlingResource.decrement()
         }
     }
+
+    fun toggleProductFavoriteStatus(product: Product) {
+        launch {
+            productsInteractors.toggleProductFavorite(product)
+            productsInteractors.listProductsFromCategory(selectedCategoryId.value ?: 0L)
+        }
+    }
+
+    /**
+     * Certifica-se que possui uma única categoria selecionada('0' caso contrário) e marca o id no adapter
+     * */
+    private fun mapProductsListSelection(products: List<Product>): Long {
+        val categoryId = products.firstOrNull()?.categoryId ?: 0
+        return if (products.firstOrNull { product -> product.categoryId != categoryId } == null) {
+            categoryId
+        } else {
+            0L
+        }
+    }
+
 }
 
 class ProductsViewModelFactory(private val productsInteractors: ProductsInteractors

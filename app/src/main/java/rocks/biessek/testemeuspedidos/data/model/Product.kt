@@ -14,5 +14,5 @@ data class Product(
         override val photo: String,
         override val price: Double,
         @SerializedName("category_id") override val categoryId: Long,
-        override val favorite: Boolean = false
+        override var favorite: Boolean = false
 ) : Product

@@ -5,7 +5,7 @@ import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,7 +51,7 @@ class ProductsLocalDataSourceTest {
     fun checkCanListProductFromCategory() {
         productsDao.saveProduct(testProduct)
 
-        val result = productsLocalDataSource.loadProductsFromCategory(testCategory)
+        val result = productsLocalDataSource.loadProductsFromCategory(testCategory.id)
 
         assertTrue(result.isNotEmpty())
     }

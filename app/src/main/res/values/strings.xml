@@ -4,4 +4,5 @@
     <string name="no_products">Nenhum produto encontrado</string>
     <string name="title_categories">Categorias</string>
     <string name="category_all">Todas as Categorias</string>
+    <string name="empty" />
 </resources>

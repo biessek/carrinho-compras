@@ -6,5 +6,5 @@ import rocks.biessek.testemeuspedidos.domain.model.ProductCategory
 interface ProductsDataSource {
     fun saveProduct(product: Product): Boolean
     fun loadProducts(): List<Product>
-    fun loadProductsFromCategory(category: ProductCategory): List<Product>
+    fun loadProductsFromCategory(categoryId: Long): List<Product>
 }

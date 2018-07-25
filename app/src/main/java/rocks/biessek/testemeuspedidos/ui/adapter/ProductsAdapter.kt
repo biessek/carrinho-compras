@@ -12,14 +12,16 @@ import kotlinx.android.synthetic.main.product_list_item.view.*
 import rocks.biessek.testemeuspedidos.R
 import rocks.biessek.testemeuspedidos.ui.model.Product
 
-class ProductsAdapter : ListAdapter<Product, ProductsViewHolder>(diffCallback) {
+class ProductsAdapter(private val listener: ProductItemListener) : ListAdapter<Product, ProductsViewHolder>(diffCallback) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductsViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return ProductsViewHolder(inflater.inflate(R.layout.product_list_item, parent, false))
     }
 
     override fun onBindViewHolder(holder: ProductsViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val product = getItem(position)
+        holder.itemView.favorite.setOnClickListener { listener.onProductFavoriteClick(product) }
+        holder.bind(product)
     }
 
     override fun submitList(list: List<Product>?) {
@@ -53,12 +55,10 @@ class ProductsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
                 .into(itemView.image)
         itemView.title.text = product.name
         itemView.price.text = "%.1f".format(product.price)
-        if (product.favorite) {
-            itemView.favorite_off.visibility = View.INVISIBLE
-            itemView.favorite_on.visibility = View.VISIBLE
-        } else {
-            itemView.favorite_off.visibility = View.VISIBLE
-            itemView.favorite_on.visibility = View.INVISIBLE
-        }
+        itemView.favorite.isChecked = product.favorite
     }
+}
+
+interface ProductItemListener {
+    fun onProductFavoriteClick(product: Product)
 }

@@ -2,7 +2,6 @@ package rocks.biessek.testemeuspedidos.data.remote
 
 import rocks.biessek.testemeuspedidos.domain.ProductsDataSource
 import rocks.biessek.testemeuspedidos.domain.model.Product
-import rocks.biessek.testemeuspedidos.domain.model.ProductCategory
 import java.io.IOException
 
 class ProductsRemoteDataSource(private val serviceApi: ServiceApi) : ProductsDataSource {
@@ -24,7 +23,7 @@ class ProductsRemoteDataSource(private val serviceApi: ServiceApi) : ProductsDat
         return emptyList()
     }
 
-    override fun loadProductsFromCategory(category: ProductCategory): List<Product> {
+    override fun loadProductsFromCategory(categoryId: Long): List<Product> {
         throw UnsupportedOperationException()
     }
 }

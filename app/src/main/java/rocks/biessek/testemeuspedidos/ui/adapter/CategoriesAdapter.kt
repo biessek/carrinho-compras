@@ -1,7 +1,6 @@
 package rocks.biessek.testemeuspedidos.ui.adapter
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +24,7 @@ class CategoriesAdapter(context: Context, private val listener: CategorySelected
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val category = getItem(position)
-        holder.itemView.setOnClickListener { listener.onCategorySelected(category) }
+        holder.itemView.setOnClickListener { listener.onCategorySelected(category.id) }
         holder.bind(category, selectedItem == category.id)
     }
 
@@ -72,5 +71,5 @@ class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 }
 
 interface CategorySelectedListener {
-    fun onCategorySelected(category: ProductCategory)
+    fun onCategorySelected(categoryId: Long)
 }
