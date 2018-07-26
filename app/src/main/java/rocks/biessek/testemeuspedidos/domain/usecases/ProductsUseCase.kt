@@ -14,3 +14,7 @@ interface FilterProductsUseCase {
 interface FavoriteProductUseCase {
     suspend fun toggleProductFavorite(product: Product): Boolean
 }
+
+interface DetailProductUseCase {
+    suspend fun loadProductById(id: Long): Product?
+}

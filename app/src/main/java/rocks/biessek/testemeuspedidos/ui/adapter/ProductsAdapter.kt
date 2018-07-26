@@ -21,6 +21,7 @@ class ProductsAdapter(private val listener: ProductItemListener) : ListAdapter<P
     override fun onBindViewHolder(holder: ProductsViewHolder, position: Int) {
         val product = getItem(position)
         holder.itemView.favorite.setOnClickListener { listener.onProductFavoriteClick(product) }
+        holder.itemView.setOnClickListener { listener.onProductClick(product) }
         holder.bind(product)
     }
 
@@ -51,14 +52,14 @@ class ProductsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
                     centerInside()
                 })
                 .load(product.photo)
-
                 .into(itemView.image)
         itemView.title.text = product.name
-        itemView.price.text = "%.1f".format(product.price)
+        itemView.price.text = itemView.context.getString(R.string.product_value,product.price)
         itemView.favorite.isChecked = product.favorite
     }
 }
 
 interface ProductItemListener {
     fun onProductFavoriteClick(product: Product)
+    fun onProductClick(product: Product)
 }

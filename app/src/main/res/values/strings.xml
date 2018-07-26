@@ -5,4 +5,7 @@
     <string name="title_categories">Categorias</string>
     <string name="category_all">Todas as Categorias</string>
     <string name="empty" />
+    <string name="money">R$</string>
+    <string name="product_value">%1$.1f</string>
+    <string name="product_not_found">Produto não encontrado!</string>
 </resources>

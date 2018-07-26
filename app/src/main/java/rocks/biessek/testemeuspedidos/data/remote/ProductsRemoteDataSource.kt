@@ -5,6 +5,11 @@ import rocks.biessek.testemeuspedidos.domain.model.Product
 import java.io.IOException
 
 class ProductsRemoteDataSource(private val serviceApi: ServiceApi) : ProductsDataSource {
+
+    override fun loadProductById(id: Long): Product? {
+        throw UnsupportedOperationException()
+    }
+
     override fun saveProduct(product: Product): Boolean {
         throw UnsupportedOperationException()
     }

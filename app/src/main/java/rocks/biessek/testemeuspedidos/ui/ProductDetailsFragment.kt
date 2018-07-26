@@ -1,41 +1,33 @@
 package rocks.biessek.testemeuspedidos.ui
 
-import android.content.Context
-import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import kotlinx.android.synthetic.main.fragment_product_details.*
+import kotlinx.android.synthetic.main.fragment_product_details.view.*
+import org.kodein.di.LateInitKodein
+import org.kodein.di.generic.instance
+import rocks.biessek.testemeuspedidos.App
 import rocks.biessek.testemeuspedidos.R
+import rocks.biessek.testemeuspedidos.domain.ProductsInteractors
+import rocks.biessek.testemeuspedidos.ui.model.Product
+import rocks.biessek.testemeuspedidos.ui.viewmodel.ProductDetailsViewModel
+import rocks.biessek.testemeuspedidos.ui.viewmodel.ProductDetailsViewModelFactory
 
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [ProductDetailsFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [ProductDetailsFragment.newInstance] factory method to
- * create an instance of this fragment.
- *
- */
 class ProductDetailsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-    private var listener: OnFragmentInteractionListener? = null
+    val kodein = LateInitKodein()
+    private lateinit var productDetailsViewModel: ProductDetailsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+        kodein.baseKodein = (activity!!.applicationContext as App).kodein
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -44,58 +36,62 @@ class ProductDetailsFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_product_details, container, false)
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    fun onButtonPressed(uri: Uri) {
-        listener?.onFragmentInteraction(uri)
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        configureToolbar()
+        configureProductDetailsViewModel()
+
+        loadProduct()
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            listener = context
-        } else {
-            throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
+    private fun loadProduct() {
+        val productId = arguments?.getString("product_id")?.toLong()
+        productDetailsViewModel.loadProduct(productId)
+    }
+
+    private fun configureProductDetailsViewModel() {
+        val productsInteractors: ProductsInteractors by kodein.instance()
+
+        productDetailsViewModel = ViewModelProviders.of(this, ProductDetailsViewModelFactory(productsInteractors))
+                .get(ProductDetailsViewModel::class.java)
+        productDetailsViewModel.selectedProduct.observe(this, Observer { product ->
+            if (product != null) {
+                refreshLayout(product)
+            }
+            changeContentVisibility(product)
+        })
+    }
+
+    private fun refreshLayout(product: Product) {
+        view?.content?.let {
+            Glide.with(context!!)
+                    .setDefaultRequestOptions(RequestOptions().apply {
+                        centerInside()
+                    })
+                    .load(product.photo)
+                    .into(it.image)
+            it.name.text = product.name
+            it.value.text = getString(R.string.product_value, product.price)
+            it.description.text = product.description
+            it.favorite.isChecked = product.favorite
         }
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        listener = null
+    private fun changeContentVisibility(product: Product?) {
+        details.progressBar.visibility = View.GONE
+        if (product == null) {
+            error_text.visibility = View.VISIBLE
+            content.visibility = View.INVISIBLE
+        } else {
+            error_text.visibility = View.INVISIBLE
+            content.visibility = View.VISIBLE
+        }
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments]
-     * (http://developer.android.com/training/basics/fragments/communicating.html)
-     * for more information.
-     */
-    interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        fun onFragmentInteraction(uri: Uri)
-    }
-
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ProductDetailsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-                ProductDetailsFragment().apply {
-                    arguments = Bundle().apply {
-                        putString(ARG_PARAM1, param1)
-                        putString(ARG_PARAM2, param2)
-                    }
-                }
+    private fun configureToolbar() {
+        (activity as AppCompatActivity).setSupportActionBar(details.toolbar)
+        (activity as AppCompatActivity).supportActionBar!!.setDisplayShowTitleEnabled(false)
+        (activity as AppCompatActivity).supportActionBar!!.setDisplayShowHomeEnabled(true)
+        (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
     }
 }

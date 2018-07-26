@@ -14,4 +14,7 @@
     <dimen name="dividerHeight">1dp</dimen>
     <dimen name="checkCategorySize">20dp</dimen>
     <dimen name="favoriteButtonSize">30dp</dimen>
+    <dimen name="detail_image_height">200dp</dimen>
+    <dimen name="productContentPadding">8dp</dimen>
+    <dimen name="productDescriptionSize">20sp</dimen>
 </resources>

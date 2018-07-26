@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.categories_list.*
@@ -89,6 +90,12 @@ class ProductsFragment : Fragment(), CategorySelectedListener, ProductItemListen
 
     override fun onProductFavoriteClick(product: Product) {
         productsViewModel.toggleProductFavoriteStatus(product)
+    }
+
+    override fun onProductClick(product: Product) {
+        val action = ProductsFragmentDirections.showProductDetailsAction()
+        action.setProductId(product.id?.toString())
+        findNavController(view!!).navigate(action)
     }
 
     override fun onCategorySelected(categoryId: Long) {

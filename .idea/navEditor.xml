@@ -31,7 +31,7 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_productsFragment_to_productDetailsFragment">
+                            <entry key="showProductDetailsAction">
                               <value>
                                 <LayoutPositions />
                               </value>

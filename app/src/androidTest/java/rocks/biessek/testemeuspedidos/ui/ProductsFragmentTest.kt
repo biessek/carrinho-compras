@@ -64,7 +64,7 @@ class ProductsFragmentTest {
         database.clearAllTables()
     }
 
-    //@Test
+    @Test
     fun checkEmptyListProducts() {
         withContent(noResponse(), noResponse())
         activityRule.launchActivity(null)
@@ -73,7 +73,7 @@ class ProductsFragmentTest {
         onView(withText(emptyText)).check(ViewAssertions.matches(isDisplayed()))
     }
 
-    //@Test
+    @Test
     fun checkListProducts() {
         withContent(someProducts(), noResponse())
         activityRule.launchActivity(null)
@@ -82,7 +82,7 @@ class ProductsFragmentTest {
         onView(withId(R.id.products_list)).check(ViewAssertions.matches(hasChildCount(3)))
     }
 
-    //@Test
+    @Test
     fun checkShowCategoriesMenu() {
         withContent(someProducts(), someCategories())
         activityRule.launchActivity(null)
@@ -95,7 +95,7 @@ class ProductsFragmentTest {
     }
 
 
-    //@Test
+    @Test
     fun checkFilterByCategory() {
         withContent(someProducts(), someCategories())
         activityRule.launchActivity(null)
@@ -150,7 +150,20 @@ class ProductsFragmentTest {
                 .check(matches(hasDescendant(withText("Galaxy A5 2016"))))
                 .check(matches(hasDescendant(allOf(withId(R.id.favorite), isChecked()))))
     }
-    
+
+    @Test
+    fun checkNavigateToDetails() {
+        val testDescription = "Alta performance Hardware de alta qualidade e performance para navegação na internet. O processador Octa-Core permite carregamento de páginas de navegadores instantaneamente, transições de interfaces de maneira suave e multitarefa. O Galaxy A permite também a expansão de memória."
+        withContent(someProducts(), someCategories())
+        activityRule.launchActivity(null)
+
+        onView(withId(R.id.products_list)).perform(scrollToPosition<ProductsViewHolder>(2))
+
+        onView(withRecyclerView(R.id.products_list).atPosition(2)).perform(click())
+
+        onView(withText(testDescription)).check(matches(isDisplayed()))
+    }
+
     @After
     @Throws(IOException::class)
     fun tearDown() {

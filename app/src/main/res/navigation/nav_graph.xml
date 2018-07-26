@@ -9,14 +9,20 @@
         android:id="@+id/productsFragment"
         android:name="rocks.biessek.testemeuspedidos.ui.ProductsFragment"
         android:label="fragment_products"
-        tools:layout="@layout/fragment_products" >
+        tools:layout="@layout/fragment_products">
         <action
-            android:id="@+id/action_productsFragment_to_productDetailsFragment"
+            android:id="@+id/showProductDetailsAction"
             app:destination="@id/productDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/productDetailsFragment"
         android:name="rocks.biessek.testemeuspedidos.ui.ProductDetailsFragment"
         android:label="fragment_product_details"
-        tools:layout="@layout/fragment_product_details" />
+        tools:layout="@layout/fragment_product_details">
+        <argument
+            android:name="product_id"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
 </navigation>

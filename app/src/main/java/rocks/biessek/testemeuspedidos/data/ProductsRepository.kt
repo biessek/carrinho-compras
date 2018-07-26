@@ -5,6 +5,7 @@ import rocks.biessek.testemeuspedidos.domain.model.Product
 
 class ProductsRepository(private val localProductsDataSource: ProductsDataSource,
                          private val remoteProductsDataSource: ProductsDataSource) : ProductsDataSource {
+    override fun loadProductById(id: Long): Product? = localProductsDataSource.loadProductById(id)
 
     override fun saveProduct(product: Product): Boolean =
             localProductsDataSource.saveProduct(product)

@@ -5,6 +5,7 @@ import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
 import org.junit.After
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -45,6 +46,14 @@ class ProductsLocalDataSourceTest {
 
         val allProducts = productsLocalDataSource.loadProducts()
         assertTrue(allProducts.isNotEmpty())
+    }
+
+    @Test
+    fun checkCanFindProductById() {
+        val id = productsDao.saveProduct(testProduct)
+
+        val product = productsLocalDataSource.loadProductById(id)
+        assertNotNull(product)
     }
 
     @Test
