@@ -6,11 +6,14 @@ import java.io.IOException
 
 class ProductsRemoteDataSource(private val serviceApi: ServiceApi) : ProductsDataSource {
 
-    override fun loadProductById(id: Long): Product? {
+    override fun saveProduct(product: Product): Boolean {
+        throw UnsupportedOperationException()
+    }
+    override fun saveAllProducts(products: Array<Product>): Boolean {
         throw UnsupportedOperationException()
     }
 
-    override fun saveProduct(product: Product): Boolean {
+    override fun loadProductById(id: Long): Product? {
         throw UnsupportedOperationException()
     }
 

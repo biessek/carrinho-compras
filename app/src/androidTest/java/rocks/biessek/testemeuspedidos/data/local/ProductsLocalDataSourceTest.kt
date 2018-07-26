@@ -72,4 +72,10 @@ class ProductsLocalDataSourceTest {
         assertTrue(result)
     }
 
+    @Test
+    fun checkCanSaveProducts() {
+        val result = productsLocalDataSource.saveAllProducts(arrayOf(testProduct, testProduct))
+
+        assertTrue(result)
+    }
 }

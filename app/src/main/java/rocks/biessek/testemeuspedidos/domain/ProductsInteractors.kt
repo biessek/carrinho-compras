@@ -1,7 +1,6 @@
 package rocks.biessek.testemeuspedidos.domain
 
 import rocks.biessek.testemeuspedidos.domain.model.Product
-import rocks.biessek.testemeuspedidos.domain.model.ProductCategory
 import rocks.biessek.testemeuspedidos.domain.usecases.DetailProductUseCase
 import rocks.biessek.testemeuspedidos.domain.usecases.FavoriteProductUseCase
 import rocks.biessek.testemeuspedidos.domain.usecases.FilterProductsUseCase
@@ -11,12 +10,12 @@ class ProductsInteractors(private val productsDataSource: ProductsDataSource) :
         ListProductsUseCase,
         FilterProductsUseCase,
         FavoriteProductUseCase,
-        DetailProductUseCase{
+        DetailProductUseCase {
+
     override suspend fun toggleProductFavorite(product: Product): Boolean {
         product.favorite = !product.favorite
         return productsDataSource.saveProduct(product)
     }
-
 
     override suspend fun listProductsFromCategory(categoryId: Long): List<Product> =
             productsDataSource.loadProductsFromCategory(categoryId)

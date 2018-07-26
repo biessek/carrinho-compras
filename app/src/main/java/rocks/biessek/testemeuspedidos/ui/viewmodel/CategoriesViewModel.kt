@@ -16,14 +16,9 @@ class CategoriesViewModel(
     private var categories = MutableLiveData<List<ProductCategory>>()
 
     val categoriesList: LiveData<List<ProductCategory>>
-        get() {
-            if (categories.value == null) {
-                listProductCategories()
-            }
-            return categories
-        }
+        get() = categories
 
-    private fun listProductCategories() {
+    fun loadCategories() {
         AppIdlingResource.increment()
         launch {
             val loaded = categoriesInteractors.listCategories().map {

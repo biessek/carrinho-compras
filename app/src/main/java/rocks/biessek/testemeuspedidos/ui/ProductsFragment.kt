@@ -59,6 +59,9 @@ class ProductsFragment : Fragment(), CategorySelectedListener, ProductItemListen
 
         configureProductsViewModel()
         configureCategoriesViewModel()
+
+        productsViewModel.loadProducts()
+        categoryViewModel.loadCategories()
     }
 
     private fun configureProductsViewModel() {

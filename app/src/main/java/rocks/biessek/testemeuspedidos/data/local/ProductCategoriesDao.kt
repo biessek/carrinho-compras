@@ -13,4 +13,8 @@ interface ProductCategoriesDao {
 
     @Delete
     fun deleteProductCategories(vararg category: ProductCategory): Int
+
+    @Insert
+    fun saveAllCategories(categories: Array<ProductCategory>): Array<Long>
+
 }

@@ -1,5 +1,8 @@
 # Retain generic type information for use by reflection by converters and adapters.
 -keepattributes Signature
+-keepattributes Exceptions
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable
 
 # Retain service method parameters when optimizing.
 -keepclassmembers,allowshrinking,allowobfuscation interface * {
@@ -25,5 +28,7 @@
   public *;
 }
 
-# for DexGuard only
--keepresourcexmlelements manifest/application/meta-data@value=GlideModule
+-keepclassmembernames class kotlinx.** {
+    volatile <fields>;
+}
+

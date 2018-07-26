@@ -47,6 +47,15 @@ class ProductCategoriesLocalDataSourceTest {
     }
 
     @Test
+    fun checkCanSaveProductCategories() {
+        categoriesDao.deleteProductCategories(testCategory)
+
+        val result = categoriesLocalDataSource.saveAllCategories(arrayOf(testCategory, ProductCategory(2, "Test 2")))
+
+        assertTrue(result)
+    }
+
+    @Test
     fun checkCanListProductCategories() {
         categoriesDao.saveProductCategory(testCategory)
 

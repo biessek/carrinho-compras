@@ -7,6 +7,9 @@ class ProductCategoriesRepository(private val localCategoriesDataSource: Categor
                                   private val remoteCategoriesDataSource: CategoriesDataSource) : CategoriesDataSource {
     override fun saveCategory(category: ProductCategory): Boolean = localCategoriesDataSource.saveCategory(category)
 
+    override fun saveAllCategories(categories: Array<ProductCategory>): Boolean =
+            localCategoriesDataSource.saveAllCategories(categories)
+
     override fun loadCategories(): List<ProductCategory> {
         val localResult = localCategoriesDataSource.loadCategories()
 
@@ -14,8 +17,10 @@ class ProductCategoriesRepository(private val localCategoriesDataSource: Categor
             return localResult
         }
         val remoteResult = remoteCategoriesDataSource.loadCategories()
-        remoteResult.forEach { saveCategory(it) }
-        return remoteResult
-
+        if (remoteResult.isNotEmpty() &&
+                localCategoriesDataSource.saveAllCategories(remoteResult.toTypedArray())) {
+            return loadCategories()
+        }
+        return emptyList()
     }
 }

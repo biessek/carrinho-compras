@@ -19,4 +19,7 @@ interface ProductsDao {
 
     @Delete
     fun deleteProducts(vararg product: Product): Int
+
+    @Insert
+    fun saveAllProducts(products: Array<Product>): Array<Long>
 }

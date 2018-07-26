@@ -11,20 +11,15 @@ class ProductsViewModel(
         private val productsInteractors: ProductsInteractors
 ) : ViewModel() {
     private var products = MutableLiveData<List<Product>>()
-    val productsList: LiveData<List<Product>>
-        get() {
-            if (products.value == null) {
-                listProducts()
-            }
-            return products
-        }
-    val selectedCategoryId: LiveData<Long>
-
     private var product = MutableLiveData<Product>()
+
+    val productsList: LiveData<List<Product>>
+        get() = products
+
     val selectedProduct: LiveData<Product>
-        get() {
-            return product
-        }
+        get() = product
+
+    val selectedCategoryId: LiveData<Long>
 
     init {
         selectedCategoryId = Transformations.map(productsList) { products ->
@@ -33,10 +28,10 @@ class ProductsViewModel(
     }
 
     fun filterFromCategoryId(categoryId: Long) {
-        listProducts(categoryId)
+        loadProducts(categoryId)
     }
 
-    private fun listProducts(categoryId: Long = 0L) {
+    fun loadProducts(categoryId: Long = 0L) {
         AppIdlingResource.increment()
         launch {
             var loaded = if (categoryId == 0L) {

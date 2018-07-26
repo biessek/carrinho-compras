@@ -5,6 +5,10 @@ import rocks.biessek.testemeuspedidos.domain.model.ProductCategory
 import java.io.IOException
 
 class ProductCategoriesRemoteDataSource(private val serviceApi: ServiceApi) : CategoriesDataSource {
+    override fun saveAllCategories(categories: Array<ProductCategory>): Boolean {
+        throw UnsupportedOperationException()
+    }
+
     override fun saveCategory(category: ProductCategory): Boolean {
         throw UnsupportedOperationException()
     }
