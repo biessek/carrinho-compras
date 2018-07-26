@@ -8,7 +8,7 @@ import rocks.biessek.testemeuspedidos.domain.model.Product
 @Entity
 data class Product(
         @PrimaryKey(autoGenerate = true)
-        override var id: Long? = null,
+        override var id: Long?,
         override val name: String,
         override val description: String,
         override val photo: String,
