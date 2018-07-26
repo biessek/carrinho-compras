@@ -20,6 +20,12 @@ class ProductsViewModel(
         }
     val selectedCategoryId: LiveData<Long>
 
+    private var product = MutableLiveData<Product>()
+    val selectedProduct: LiveData<Product>
+        get() {
+            return product
+        }
+
     init {
         selectedCategoryId = Transformations.map(productsList) { products ->
             return@map mapProductsListSelection(products)
@@ -47,10 +53,33 @@ class ProductsViewModel(
         }
     }
 
+    fun loadProduct(id: Long?) {
+        AppIdlingResource.increment()
+        launch {
+            if (id == null) {
+                product.postValue(null)
+            } else {
+                productsInteractors.loadProductById(id)?.let {
+                    product.postValue(Product(
+                            it.id,
+                            it.name,
+                            it.description,
+                            it.photo,
+                            it.price,
+                            it.categoryId,
+                            it.favorite
+                    ))
+                }
+            }
+
+            AppIdlingResource.decrement()
+        }
+    }
+
     fun toggleProductFavoriteStatus(product: Product) {
         launch {
             productsInteractors.toggleProductFavorite(product)
-            productsInteractors.listProductsFromCategory(selectedCategoryId.value ?: 0L)
+            filterFromCategoryId(selectedCategoryId.value ?: 0L)
         }
     }
 

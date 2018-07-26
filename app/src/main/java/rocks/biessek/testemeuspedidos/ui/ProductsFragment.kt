@@ -12,9 +12,8 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.categories_list.*
 import kotlinx.android.synthetic.main.categories_list.view.*
-import kotlinx.android.synthetic.main.fragment_products.*
+import kotlinx.android.synthetic.main.fragment_products.view.*
 import org.kodein.di.LateInitKodein
 import org.kodein.di.generic.instance
 import rocks.biessek.testemeuspedidos.App
@@ -65,14 +64,14 @@ class ProductsFragment : Fragment(), CategorySelectedListener, ProductItemListen
     private fun configureProductsViewModel() {
         val productsInteractors: ProductsInteractors by kodein.instance()
 
-        productsViewModel = ViewModelProviders.of(this, ProductsViewModelFactory(productsInteractors))
+        productsViewModel = ViewModelProviders.of(activity!!, ProductsViewModelFactory(productsInteractors))
                 .get(ProductsViewModel::class.java)
-        productsViewModel.productsList.observe(this, Observer { products ->
+        productsViewModel.productsList.observe(activity!!, Observer { products ->
             productsAdapter.submitList(products)
             changeContentVisibility(products)
         })
 
-        productsViewModel.selectedCategoryId.observe(this, Observer { selectedCategoryId ->
+        productsViewModel.selectedCategoryId.observe(activity!!, Observer { selectedCategoryId ->
             categoriesAdapter.setSelected(selectedCategoryId)
         })
     }
@@ -104,54 +103,62 @@ class ProductsFragment : Fragment(), CategorySelectedListener, ProductItemListen
     }
 
     private fun configureCategoriesDrawer() {
-        drawer_menu.setOnClickListener {
+        view?.drawer_menu!!.setOnClickListener {
             toggleCategoriesMenu()
         }
     }
 
     private fun toggleCategoriesMenu() {
-        if (drawer_layout.isDrawerOpen(Gravity.END)) {
-            drawer_layout.closeDrawer(Gravity.END)
+        if (view?.drawer_layout!!.isDrawerOpen(Gravity.END)) {
+            view?.drawer_layout!!.closeDrawer(Gravity.END)
         } else {
-            drawer_layout.openDrawer(Gravity.END)
+            view?.drawer_layout!!.openDrawer(Gravity.END)
         }
     }
 
     private fun changeCategoriesContentVisibility(categories: List<ProductCategory>) {
         categoriesAdapter.submitList(categories)
-        categories_layout.progressBar.visibility = View.GONE
-        categories_list.visibility = View.VISIBLE
+        view?.let {
+            it.categories_layout.categoriesProgressBar.visibility = View.GONE
+            it.categories_list.visibility = View.VISIBLE
+        }
     }
 
     private fun changeContentVisibility(products: List<Product>) {
-        main_content.progressBar.visibility = View.GONE
-        if (products.isEmpty()) {
-            empty_text.visibility = View.VISIBLE
-            products_list.visibility = View.INVISIBLE
-        } else {
-            empty_text.visibility = View.INVISIBLE
-            products_list.visibility = View.VISIBLE
+        view?.let {
+            it.main_content.progressBar.visibility = View.GONE
+            if (products.isEmpty()) {
+                it.empty_text.visibility = View.VISIBLE
+                it.products_list.visibility = View.INVISIBLE
+            } else {
+                it.empty_text.visibility = View.INVISIBLE
+                it.products_list.visibility = View.VISIBLE
+            }
         }
     }
 
     private fun configureProductsList() {
         productsAdapter = ProductsAdapter(this)
-        products_list.adapter = productsAdapter
-        products_list.setHasFixedSize(true)
-        products_list.layoutManager = LinearLayoutManager(context)
-        products_list.itemAnimator = DefaultItemAnimator()
+        view?.let {
+            it.products_list.adapter = productsAdapter
+            it.products_list.setHasFixedSize(true)
+            it.products_list.layoutManager = LinearLayoutManager(context)
+            it.products_list.itemAnimator = DefaultItemAnimator()
+        }
     }
 
     private fun configureCategoriesList() {
         categoriesAdapter = CategoriesAdapter(context!!, this)
-        categories_list.adapter = categoriesAdapter
-        categories_list.setHasFixedSize(true)
-        categories_list.layoutManager = LinearLayoutManager(context)
-        categories_list.itemAnimator = DefaultItemAnimator()
+        view?.let {
+            it.categories_list.adapter = categoriesAdapter
+            it.categories_list.setHasFixedSize(true)
+            it.categories_list.layoutManager = LinearLayoutManager(context)
+            it.categories_list.itemAnimator = DefaultItemAnimator()
+        }
     }
 
     private fun configureToolbar() {
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
+        (activity as AppCompatActivity).setSupportActionBar(view!!.toolbar)
         (activity as AppCompatActivity).supportActionBar!!.setDisplayShowTitleEnabled(false)
     }
 

@@ -4,13 +4,13 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import androidx.test.InstrumentationRegistry
-import androidx.test.espresso.Espresso.onData
-import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.DrawerMatchers.isOpen
+import androidx.test.espresso.contrib.NavigationViewActions
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.contrib.RecyclerViewActions.scrollToPosition
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -128,7 +128,7 @@ class ProductsFragmentTest {
 
     }
 
-    //    @Test
+    @Test
     fun checkCanFavoriteProduct() {
         withContent(someProducts(), someCategories())
         activityRule.launchActivity(null)
@@ -162,6 +162,25 @@ class ProductsFragmentTest {
         onView(withRecyclerView(R.id.products_list).atPosition(2)).perform(click())
 
         onView(withText(testDescription)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun checkFavoriteProductFromDetails() {
+        withContent(someProducts(), someCategories())
+        activityRule.launchActivity(null)
+
+        onView(withId(R.id.products_list)).perform(scrollToPosition<ProductsViewHolder>(2))
+
+        onView(withRecyclerView(R.id.products_list).atPosition(2)).perform(click())
+
+        onView(withId(R.id.favorite)).check(matches(isNotChecked()))
+        onView(withId(R.id.favorite)).perform(click())
+        onView(withId(R.id.favorite)).check(matches(isChecked()))
+
+        pressBack()
+        onView(withRecyclerView(R.id.products_list).atPosition(2))
+                .check(matches(hasDescendant(withText("Galaxy A5 2016"))))
+                .check(matches(hasDescendant(allOf(withId(R.id.favorite), isChecked()))))
     }
 
     @After

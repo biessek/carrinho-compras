@@ -18,12 +18,12 @@ import rocks.biessek.testemeuspedidos.App
 import rocks.biessek.testemeuspedidos.R
 import rocks.biessek.testemeuspedidos.domain.ProductsInteractors
 import rocks.biessek.testemeuspedidos.ui.model.Product
-import rocks.biessek.testemeuspedidos.ui.viewmodel.ProductDetailsViewModel
-import rocks.biessek.testemeuspedidos.ui.viewmodel.ProductDetailsViewModelFactory
+import rocks.biessek.testemeuspedidos.ui.viewmodel.ProductsViewModel
+import rocks.biessek.testemeuspedidos.ui.viewmodel.ProductsViewModelFactory
 
 class ProductDetailsFragment : Fragment() {
     val kodein = LateInitKodein()
-    private lateinit var productDetailsViewModel: ProductDetailsViewModel
+    private lateinit var productsViewModel: ProductsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,15 +46,15 @@ class ProductDetailsFragment : Fragment() {
 
     private fun loadProduct() {
         val productId = arguments?.getString("product_id")?.toLong()
-        productDetailsViewModel.loadProduct(productId)
+        productsViewModel.loadProduct(productId)
     }
 
     private fun configureProductDetailsViewModel() {
         val productsInteractors: ProductsInteractors by kodein.instance()
 
-        productDetailsViewModel = ViewModelProviders.of(this, ProductDetailsViewModelFactory(productsInteractors))
-                .get(ProductDetailsViewModel::class.java)
-        productDetailsViewModel.selectedProduct.observe(this, Observer { product ->
+        productsViewModel = ViewModelProviders.of(activity!!, ProductsViewModelFactory(productsInteractors))
+                .get(ProductsViewModel::class.java)
+        productsViewModel.selectedProduct.observe(activity!!, Observer { product ->
             if (product != null) {
                 refreshLayout(product)
             }
@@ -74,17 +74,21 @@ class ProductDetailsFragment : Fragment() {
             it.value.text = getString(R.string.product_value, product.price)
             it.description.text = product.description
             it.favorite.isChecked = product.favorite
+            it.favorite.setOnClickListener { productsViewModel.toggleProductFavoriteStatus(product) }
         }
     }
 
     private fun changeContentVisibility(product: Product?) {
-        details.progressBar.visibility = View.GONE
-        if (product == null) {
-            error_text.visibility = View.VISIBLE
-            content.visibility = View.INVISIBLE
-        } else {
-            error_text.visibility = View.INVISIBLE
-            content.visibility = View.VISIBLE
+        view?.let {
+            it.details.progressBar.visibility = View.GONE
+            if (product == null) {
+                it.error_text.visibility = View.VISIBLE
+                it.content.visibility = View.INVISIBLE
+            } else {
+                it.error_text.visibility = View.INVISIBLE
+                it.content.visibility = View.VISIBLE
+            }
+
         }
     }
 
