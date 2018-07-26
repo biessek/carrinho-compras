@@ -42,8 +42,7 @@
                     android:layout_height="@dimen/detail_image_height"
                     android:scaleType="centerInside"
                     app:layout_constraintBottom_toTopOf="@+id/name"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:src="@drawable/ic_launcher_foreground" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/name"

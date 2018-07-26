@@ -1,7 +1,6 @@
 package rocks.biessek.testemeuspedidos
 
 import android.app.Application
-import android.util.Log
 import androidx.room.Room
 import org.kodein.di.Kodein
 import org.kodein.di.generic.bind
@@ -22,8 +21,11 @@ import rocks.biessek.testemeuspedidos.domain.CategoriesInteractors
 import rocks.biessek.testemeuspedidos.domain.ProductsInteractors
 
 open class App : Application() {
-    private val BASE_URL = "https://gist.githubusercontent.com/ronanrodrigo/"
-    val retrofit = Retrofit.Builder()
+    companion object {
+        const val BASE_URL = "https://gist.githubusercontent.com/ronanrodrigo/"
+    }
+
+    private val retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

@@ -3,27 +3,13 @@ package rocks.biessek.testemeuspedidos.ui
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import androidx.test.InstrumentationRegistry
-import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.DrawerMatchers.isOpen
-import androidx.test.espresso.contrib.NavigationViewActions
-import androidx.test.espresso.contrib.RecyclerViewActions
-import androidx.test.espresso.contrib.RecyclerViewActions.scrollToPosition
-import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
-import androidx.test.runner.AndroidJUnit4
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.hamcrest.Description
 import org.hamcrest.Matcher
-import org.hamcrest.Matchers.*
 import org.hamcrest.TypeSafeMatcher
 import org.junit.After
 import org.junit.Before
@@ -43,10 +29,14 @@ import rocks.biessek.testemeuspedidos.ui.model.ProductCategory
 import rocks.biessek.testemeuspedidos.ui.utils.RecyclerViewMatcher
 import java.io.IOException
 
-
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class ProductsFragmentTest {
+    companion object {
+        const val PRODUCTS_PATH = "/b95b75cfddc6b1cb601d7f806859e1dc/raw/dc973df65664f6997eeba30158d838c4b716204c/products.json"
+        const val CATEGORIES_PATH = "/e84d0d969613fd0ef8f9fd08546f7155/raw/a0611f7e765fa2b745ad9a897296e082a3987f61/categories.json"
+    }
+
     private lateinit var database: ProductsDatabase
     private lateinit var server: MockWebServer
 
@@ -103,7 +93,7 @@ class ProductsFragmentTest {
 
         onView(withId(R.id.drawer_menu)).perform(click())
         onView(withId(R.id.categories_list))
-                .perform(RecyclerViewActions.actionOnItemAtPosition<CategoryViewHolder>(1, click()))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(1, click()))
 
         onData(`is`(instanceOf(Product::class.java)))
         onView(withId(R.id.products_list)).check(ViewAssertions.matches(hasChildCount(2)))
@@ -189,9 +179,6 @@ class ProductsFragmentTest {
         IdlingRegistry.getInstance().unregister(AppIdlingResource.countingIdlingResource)
     }
 
-    private val PRODUCTS_PATH = "/b95b75cfddc6b1cb601d7f806859e1dc/raw/dc973df65664f6997eeba30158d838c4b716204c/products.json"
-    private val CATEGORIES_PATH = "/e84d0d969613fd0ef8f9fd08546f7155/raw/a0611f7e765fa2b745ad9a897296e082a3987f61/categories.json"
-
     private fun noResponse(): MockResponse {
         return MockResponse().setResponseCode(404)
     }
@@ -255,7 +242,7 @@ class ProductsFragmentTest {
     }
 
 
-    fun nthChildOf(parentMatcher: Matcher<View>, childPosition: Int): Matcher<View> {
+    private fun nthChildOf(parentMatcher: Matcher<View>, childPosition: Int): Matcher<View> {
         return object : TypeSafeMatcher<View>() {
             override fun describeTo(description: Description) {
                 description.appendText("position $childPosition of parent ")
@@ -273,7 +260,7 @@ class ProductsFragmentTest {
         }
     }
 
-    fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
+    private fun withRecyclerView(recyclerViewId: Int): RecyclerViewMatcher {
         return RecyclerViewMatcher(recyclerViewId)
     }
 

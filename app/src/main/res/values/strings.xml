@@ -8,4 +8,6 @@
     <string name="money">R$</string>
     <string name="product_value">%1$.1f</string>
     <string name="product_not_found">Produto não encontrado!</string>
+    <string name="desc_menu">Selecionar categorias</string>
+    <string name="desc_product_image">Imagem do produto</string>
 </resources>

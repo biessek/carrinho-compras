@@ -34,8 +34,8 @@ import rocks.biessek.testemeuspedidos.ui.viewmodel.ProductsViewModelFactory
 
 class ProductsFragment : Fragment(), CategorySelectedListener, ProductItemListener {
     val kodein = LateInitKodein()
-    lateinit var productsAdapter: ProductsAdapter
-    lateinit var categoriesAdapter: CategoriesAdapter
+    private lateinit var productsAdapter: ProductsAdapter
+    private lateinit var categoriesAdapter: CategoriesAdapter
     private lateinit var productsViewModel: ProductsViewModel
     private lateinit var categoryViewModel: CategoriesViewModel
 
