@@ -27,11 +27,7 @@ class ProductsViewModel(
         }
     }
 
-    fun filterFromCategoryId(categoryId: Long) {
-        loadProducts(categoryId)
-    }
-
-    fun loadProducts(categoryId: Long = 0L) {
+    fun loadProducts(categoryId: Long = selectedCategoryId.value ?: 0L) {
         AppIdlingResource.increment()
         launch {
             var loaded = if (categoryId == 0L) {
@@ -74,7 +70,7 @@ class ProductsViewModel(
     fun toggleProductFavoriteStatus(product: Product) {
         launch {
             productsInteractors.toggleProductFavorite(product)
-            filterFromCategoryId(selectedCategoryId.value ?: 0L)
+            loadProducts()
         }
     }
 

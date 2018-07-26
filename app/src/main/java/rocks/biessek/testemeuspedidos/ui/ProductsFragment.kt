@@ -101,7 +101,7 @@ class ProductsFragment : Fragment(), CategorySelectedListener, ProductItemListen
     }
 
     override fun onCategorySelected(categoryId: Long) {
-        productsViewModel.filterFromCategoryId(categoryId)
+        productsViewModel.loadProducts(categoryId)
         toggleCategoriesMenu()
     }
 
